@@ -15,19 +15,21 @@ class App {
 
   private splitString(value: string): Array<string> {
     const subStringValues: Array<string> = new Array();
-    const subStr = splitter => {
-      value.split(splitter).map((v, i) => {
+    const subStr = (splitter, val) => {
+      val.split(splitter).map((v, i) => {
         if (v.indexOf('0') < 0) {
+          console.log(v);
           subStringValues.push(i === 0 ? `${v}${splitter}` : v);
+          return;
         }
         const nextSplitter = splitter.slice(0, splitter.length - 1);
         if (v.split(nextSplitter).length > 1) {
-          subStr(splitter.slice(0, splitter.length - 1));
+          subStr(splitter.slice(0, splitter.length - 1), v);
         }
       });
     }
 
-    subStr('0000')
+    subStr('0000', value);
 
     return subStringValues;
   }
@@ -55,7 +57,7 @@ class App {
     }
 
     const subStringValues = this.splitString(token);
-    const removeZeros = (v: string) => v.replace('0', '');
+    const removeZeros = (v: string) => v.replace(new RegExp('0', 'g'), '');
     const formatClientId = (v: string) =>
       `${v.slice(0, 3)}-${v.slice(3)}`;
 
@@ -73,12 +75,18 @@ class App {
     router.post('/api/v1/parse', (req: Request, res: Response) => {
       console.log("Request  " + JSON.stringify(req.body));
       const userToken: UserToken = req.body;
-      res.json(this.buildV1Response(userToken.data))
+      res.json(new HttpResponse<UserDetails>({
+        statusCode: 200,
+        data: this.buildV1Response(userToken.data)
+      }))
     })
 
     router.post('/api/v2/parse', (req: Request, res: Response) => {
       const userToken: UserToken = req.body;
-      res.json(this.buildV2Response(userToken.data))
+      res.json(new HttpResponse<UserDetails>({
+        statusCode: 200,
+        data: this.buildV2Response(userToken.data)
+      }));
     })
 
     this.express.use('/', router);
@@ -101,5 +109,17 @@ class UserDetails {
     this.clientId = config.clientId;
   }
 }
+
+class HttpResponse<T> {
+  statusCode: number;
+  data: T;
+
+  constructor(config?) {
+    config = config || {};
+    this.statusCode = config.statusCode;
+    this.data = config.data
+  }
+}
+
 
 export default new App().express;
