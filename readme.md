@@ -1,25 +1,7 @@
-## Skeleton for Node.js applications written in TypeScript
+## Demo applcation for NodeJS, Typescript, and Express
 
-### Development
+## Install all dependencies
+`npm install`
 
-```bash
-npm run dev
-```
-
-### Running tests
-
-```bash
-npm test
-```
-
-### Linting
-
-```bash
-npm run lint
-```
-
-### Building a container
-
-```bash
-docker build .
-```
+### How to run
+`npm run dev`
